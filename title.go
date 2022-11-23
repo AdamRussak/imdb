@@ -81,11 +81,17 @@ var ttRE = regexp.MustCompile(`^tt\d+$`)
 const titleURL = "https://www.imdb.com/title/%s"
 
 // NewTitle gets, parses and returns a Title by its ID.
-func NewTitle(c *http.Client, id string) (*Title, error) {
+func NewTitle(id string) (*Title, error) {
 	if !ttRE.MatchString(id) {
 		return nil, ErrInvalidID
 	}
-	resp, err := c.Get(fmt.Sprintf(titleURL, id))
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fmt.Sprintf(titleURL, id), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept-Language", "en-US")
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +104,15 @@ func NewTitle(c *http.Client, id string) (*Title, error) {
 	if err := t.Parse(page); err != nil {
 		return nil, err
 	}
-
-	resp, err = c.Get(t.URL + "/releaseinfo")
+	req, err = http.NewRequest("GET", t.URL+"/releaseinfo", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept-Language", "en-US")
+	resp, err = client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 	if err != nil {
 		return nil, err
 	}

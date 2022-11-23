@@ -3,7 +3,7 @@ package imdb
 import "testing"
 
 func TestTitle(t *testing.T) {
-	_, err := NewTitle(client, "wrong")
+	_, err := NewTitle("wrong")
 	if err != ErrInvalidID {
 		t.Errorf("NewTitle(wrong) = %v; want ErrInvalidId", err)
 	}
@@ -310,7 +310,7 @@ func TestTitle(t *testing.T) {
 			},
 		},
 	} {
-		got, err := NewTitle(client, tt.ID)
+		got, err := NewTitle(tt.ID)
 		if err != nil {
 			t.Errorf("NewTitle(%s) error: %v", tt.ID, err)
 		} else {
